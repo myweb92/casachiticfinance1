@@ -1,0 +1,194 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 1. Global safety net catch-all: default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- REUSABLE SECURITY & STRUCTURAL PRIMITIVES ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && (request.auth.token.email_verified == true || request.auth.token.firebase.sign_in_provider == 'google.com');
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- STRUCTURAL VALIDATION BLUEPRINTS ---
+    function isValidInvoice(data) {
+      return data.id is string && data.id.size() <= 100
+          && data.number is string && data.number.size() <= 100
+          && data.total is number;
+    }
+
+    function isValidPaymentTransaction(data) {
+      return data.id is string && data.id.size() <= 100
+          && data.invoiceId is string && data.invoiceId.size() <= 100
+          && data.amount is number
+          && data.date is string && data.date.size() <= 30;
+    }
+
+    function isValidCostCenter(data) {
+      return data.id is string && data.id.size() <= 100
+          && data.name is string && data.name.size() <= 100
+          && data.code is string && data.code.size() <= 50;
+    }
+
+    function isValidCompany(data) {
+      return data.id is string && data.id.size() <= 100
+          && data.name is string && data.name.size() <= 200;
+    }
+
+    function isValidOperationalLog(data) {
+      return data.id is string && data.id.size() <= 100
+          && data.date is string && data.date.size() <= 30;
+    }
+
+    function isValidFinancialTransaction(data) {
+      return data.id is string && data.id.size() <= 100
+          && data.type is string && (data.type == 'Venit' || data.type == 'Cheltuiala')
+          && data.amount is number
+          && data.date is string && data.date.size() <= 30;
+    }
+
+    function isValidAppTask(data) {
+      return data.id is string && data.id.size() <= 100
+          && data.title is string && data.title.size() <= 200
+          && data.status is string && (data.status == 'Pending' || data.status == 'In Progress' || data.status == 'Completed' || data.status == 'Overdue')
+          && data.dueDate is string && data.dueDate.size() <= 30;
+    }
+
+    function isValidAppTaskCompletion(data) {
+      return data.id is string && data.id.size() <= 100
+          && data.taskId is string && data.taskId.size() <= 100
+          && data.completedBy is string && data.completedBy.size() <= 100;
+    }
+
+    function isValidNotificationItem(data) {
+      return data.id is string && data.id.size() <= 100
+          && data.text is string && data.text.size() <= 500;
+    }
+
+    function isValidAutomationLog(data) {
+      return data.id is string && data.id.size() <= 100
+          && data.timestamp is string && data.timestamp.size() <= 50;
+    }
+
+    function isValidAppTaskTemplate(data) {
+      return data.id is string && data.id.size() <= 100
+          && data.title is string && data.title.size() <= 200;
+    }
+
+    function isValidUserProfile(data) {
+      return data.username is string && data.username.size() <= 100
+          && data.role is string && data.role.size() <= 50;
+    }
+
+    function isValidRolePermissionsDoc(data) {
+      return data.permissions is list && data.permissions.size() <= 50;
+    }
+
+    function isValidBalanceSheetConfig(data) {
+      return true;
+    }
+
+    // --- COHESIVE SYSTEM COLLECTION MATCH BLOCKS ---
+    match /invoices/{invoiceId} {
+      allow get, list: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidId(invoiceId) && isValidInvoice(incoming());
+      allow delete: if isSignedIn() && isValidId(invoiceId);
+    }
+
+    match /transactions/{transactionId} {
+      allow get, list: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidId(transactionId) && isValidPaymentTransaction(incoming());
+      allow delete: if isSignedIn() && isValidId(transactionId);
+    }
+
+    match /costCenters/{costCenterId} {
+      allow get, list: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidId(costCenterId) && isValidCostCenter(incoming());
+      allow delete: if isSignedIn() && isValidId(costCenterId);
+    }
+
+    match /companies/{companyId} {
+      allow get, list: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidId(companyId) && isValidCompany(incoming());
+      allow delete: if isSignedIn() && isValidId(companyId);
+    }
+
+    match /operationalLogs/{logId} {
+      allow get, list: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidId(logId) && isValidOperationalLog(incoming());
+      allow delete: if isSignedIn() && isValidId(logId);
+    }
+
+    match /manualTransactions/{transactionId} {
+      allow get, list: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidId(transactionId) && isValidFinancialTransaction(incoming());
+      allow delete: if isSignedIn() && isValidId(transactionId);
+    }
+
+    match /tasks/{taskId} {
+      allow get, list: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidId(taskId) && isValidAppTask(incoming());
+      allow delete: if isSignedIn() && isValidId(taskId);
+    }
+
+    match /completions/{completionId} {
+      allow get, list: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidId(completionId) && isValidAppTaskCompletion(incoming());
+      allow delete: if isSignedIn() && isValidId(completionId);
+    }
+
+    match /notifications/{notificationId} {
+      allow get, list: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidId(notificationId) && isValidNotificationItem(incoming());
+      allow delete: if isSignedIn() && isValidId(notificationId);
+    }
+
+    match /automationLogs/{logId} {
+      allow get, list: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidId(logId) && isValidAutomationLog(incoming());
+      allow delete: if isSignedIn() && isValidId(logId);
+    }
+
+    match /recurringTemplates/{templateId} {
+      allow get, list: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidId(templateId) && isValidAppTaskTemplate(incoming());
+      allow delete: if isSignedIn() && isValidId(templateId);
+    }
+
+    match /users/{userId} {
+      allow get, list: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidId(userId) && isValidUserProfile(incoming());
+      allow delete: if isSignedIn() && isValidId(userId);
+    }
+
+    match /rolePermissions/{roleId} {
+      allow get, list: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidId(roleId) && isValidRolePermissionsDoc(incoming());
+      allow delete: if isSignedIn() && isValidId(roleId);
+    }
+
+    match /config/{configId} {
+      allow get, list: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidId(configId) && isValidBalanceSheetConfig(incoming());
+      allow delete: if isSignedIn() && isValidId(configId);
+    }
+  }
+}

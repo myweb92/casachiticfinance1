@@ -1,0 +1,8 @@
+{
+  "name": "testing Casa Chitic v2",
+  "description": "Gestionare facturi, plăți, centre de cost și istoric prețuri pentru e-Factura și Selgros",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

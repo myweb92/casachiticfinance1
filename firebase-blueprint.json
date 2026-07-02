@@ -1,0 +1,269 @@
+{
+  "entities": {
+    "Invoice": {
+      "title": "Invoice",
+      "description": "Represents an e-Factura invoice uploaded by managers",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "number": { "type": "string" },
+        "date": { "type": "string" },
+        "client": { "type": "string" },
+        "company": { "type": "string" },
+        "costCenter": { "type": "string" },
+        "total": { "type": "number" },
+        "dueDate": { "type": "string" },
+        "paid": { "type": "number" },
+        "rest": { "type": "number" },
+        "paymentDate": { "type": "string" },
+        "status": { "type": "string", "enum": ["paid", "partial", "unpaid"] }
+      },
+      "required": ["id", "number", "total"]
+    },
+    "PaymentTransaction": {
+      "title": "PaymentTransaction",
+      "description": "A financial transaction linked to an invoice payment",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "invoiceId": { "type": "string" },
+        "invoiceNumber": { "type": "string" },
+        "date": { "type": "string" },
+        "amount": { "type": "number" },
+        "method": { "type": "string", "enum": ["Bank Transfer", "Cash", "Card", "Chitanță"] },
+        "reference": { "type": "string" }
+      },
+      "required": ["id", "invoiceId", "amount", "date"]
+    },
+    "CostCenter": {
+      "title": "CostCenter",
+      "description": "An operational division or cost center",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "code": { "type": "string" },
+        "budget": { "type": "number" }
+      },
+      "required": ["id", "name", "code"]
+    },
+    "Company": {
+      "title": "Company",
+      "description": "A client or partner company profiles",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "cui": { "type": "string" },
+        "address": { "type": "string" }
+      },
+      "required": ["id", "name"]
+    },
+    "OperationalLog": {
+      "title": "OperationalLog",
+      "description": "Hotel daily metrics such overnights, direct occupancy, and target budgets",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "date": { "type": "string" },
+        "occupiedRooms": { "type": "number" },
+        "totalRooms": { "type": "number" },
+        "touristsCount": { "type": "number" },
+        "overnights": { "type": "number" },
+        "dailyRevenue": { "type": "number" },
+        "otaPercentage": { "type": "number" },
+        "directPercentage": { "type": "number" },
+        "targetRevenue": { "type": "number" },
+        "budgetExpenses": { "type": "number" },
+        "note": { "type": "string" }
+      },
+      "required": ["id", "date"]
+    },
+    "FinancialTransaction": {
+      "title": "FinancialTransaction",
+      "description": "A manual cash revenue or expense transaction",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string", "enum": ["Venit", "Cheltuiala"] },
+        "date": { "type": "string" },
+        "category": { "type": "string" },
+        "partner": { "type": "string" },
+        "description": { "type": "string" },
+        "amount": { "type": "number" },
+        "paymentMethod": { "type": "string" },
+        "invoiceNumber": { "type": "string" },
+        "note": { "type": "string" },
+        "company": { "type": "string" },
+        "costCenter": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["id", "type", "amount", "date"]
+    },
+    "AppTask": {
+      "title": "AppTask",
+      "description": "Hotel operational checklist task",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "taskType": { "type": "string", "enum": ["Recurring", "Scheduled"] },
+        "recurrencePattern": { "type": "string", "enum": ["Daily", "Weekly"] },
+        "assignedUserId": { "type": "string" },
+        "dueDate": { "type": "string" },
+        "dueTime": { "type": "string" },
+        "status": { "type": "string", "enum": ["Pending", "In Progress", "Completed", "Overdue"] },
+        "department": { "type": "string" }
+      },
+      "required": ["id", "title", "status", "dueDate"]
+    },
+    "AppTaskCompletion": {
+      "title": "AppTaskCompletion",
+      "description": "Log of completed assignment",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "taskId": { "type": "string" },
+        "completedBy": { "type": "string" },
+        "completionTime": { "type": "string" },
+        "notes": { "type": "string" },
+        "photoUrl": { "type": "string" }
+      },
+      "required": ["id", "taskId", "completedBy"]
+    },
+    "NotificationItem": {
+      "title": "NotificationItem",
+      "description": "App alert notifications",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "text": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "read": { "type": "boolean" },
+        "type": { "type": "string" }
+      },
+      "required": ["id", "text"]
+    },
+    "AutomationLog": {
+      "title": "AutomationLog",
+      "description": "Daily recurrence auto-schedulers logs",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "countGenerated": { "type": "number" },
+        "dateGeneratedFor": { "type": "string" },
+        "log": { "type": "string" }
+      },
+      "required": ["id", "timestamp"]
+    },
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profiles managed in settings",
+      "type": "object",
+      "properties": {
+        "username": { "type": "string" },
+        "fullName": { "type": "string" },
+        "role": { "type": "string" }
+      },
+      "required": ["username", "role"]
+    },
+    "RolePermissionsDoc": {
+      "title": "RolePermissionsDoc",
+      "description": "Role permissions array mapped by role",
+      "type": "object",
+      "properties": {
+        "permissions": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "required": ["permissions"]
+    },
+    "BalanceSheetConfig": {
+      "title": "BalanceSheetConfig",
+      "description": "Baseline balance sheet parameters",
+      "type": "object",
+      "properties": {
+        "bsBaseCash": { "type": "number" },
+        "bsFixedAssets": { "type": "number" },
+        "bsEquitySocial": { "type": "number" }
+      }
+    },
+    "AppTaskTemplate": {
+      "title": "AppTaskTemplate",
+      "description": "Hotel operational checklist task template",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "taskType": { "type": "string", "enum": ["Recurring", "Scheduled"] },
+        "recurrencePattern": { "type": "string", "enum": ["Daily", "Weekly"] },
+        "assignedUserId": { "type": "string" },
+        "dueTime": { "type": "string" },
+        "department": { "type": "string" }
+      },
+      "required": ["id", "title"]
+    }
+  },
+  "firestore": {
+    "/invoices": {
+      "schema": "Invoice",
+      "description": "Invoices registry"
+    },
+    "/transactions": {
+      "schema": "PaymentTransaction",
+      "description": "Registry of transactions for invoice pay-downs"
+    },
+    "/costCenters": {
+      "schema": "CostCenter",
+      "description": "Registry of operational departments and budgets"
+    },
+    "/companies": {
+      "schema": "Company",
+      "description": "Registry of customers/supplier company entities"
+    },
+    "/operationalLogs": {
+      "schema": "OperationalLog",
+      "description": "Registry of Hotel metric indicators logged daily"
+    },
+    "/manualTransactions": {
+      "schema": "FinancialTransaction",
+      "description": "Manual transactions ledger entries"
+    },
+    "/tasks": {
+      "schema": "AppTask",
+      "description": "Tasks checklists"
+    },
+    "/completions": {
+      "schema": "AppTaskCompletion",
+      "description": "Completed tasks log"
+    },
+    "/notifications": {
+      "schema": "NotificationItem",
+      "description": "Alert system messages log"
+    },
+    "/automationLogs": {
+      "schema": "AutomationLog",
+      "description": "Recurring templates execution logging list"
+    },
+    "/recurringTemplates": {
+      "schema": "AppTaskTemplate",
+      "description": "Registry of templates for automatic recurrence instantiation"
+    },
+    "/users": {
+      "schema": "UserProfile",
+      "description": "Registry of user accounts and roles"
+    },
+    "/rolePermissions": {
+      "schema": "RolePermissionsDoc",
+      "description": "Permissions map for user roles"
+    },
+    "/config": {
+      "schema": "BalanceSheetConfig",
+      "description": "Global application configuration parameters"
+    }
+  }
+}

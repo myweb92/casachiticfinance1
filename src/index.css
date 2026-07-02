@@ -1,0 +1,121 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300..900;1,300..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Space+Grotesk:wght@300..700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #f8fafc; /* Slate 50 background */
+}
+
+/* --- Printer-Friendly Overrides --- */
+@media print {
+  /* 1. Hide interactive layout UI elements, menus and navigation helpers */
+  #applet-sidebar,
+  header,
+  #hotel-period-filter,
+  #excel-export-btn,
+  #print-report-btn,
+  button,
+  form,
+  .no-print {
+    display: none !important;
+  }
+
+  /* 2. Reset viewport & scroll containers so layout behaves as fluid block elements */
+  html, body {
+    height: auto !important;
+    overflow: visible !important;
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    font-size: 11px !important;
+  }
+
+  /* Disarm h-screen & scroll container limits of the application canvas */
+  .flex,
+  main,
+  #applet-main-canvas,
+  #view-canvas-contents,
+  #financial-module-root,
+  #monthly-report-view {
+    display: block !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    position: static !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* 3. Force Chrome/Safar/Firefox to print background colors and cell highlights correctly */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* 4. Elegant paper formatting for core info cards */
+  .bg-white {
+    background-color: #ffffff !important;
+    box-shadow: none !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    margin-bottom: 20px !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Ensure headings remain high-contrast and stand on current pages */
+  h1, h2, h3, h4, h5, h6 {
+    color: #0f172a !important;
+    page-break-after: avoid !important;
+    font-weight: 800 !important;
+  }
+
+  /* Optimize layout grid columns for standard A4 landscape or portrait print */
+  .grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+  }
+
+  /* Flat layout structure for full-width components on paper */
+  .lg\:grid-cols-3 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .lg\:col-span-2 {
+    grid-column: span 1 / span 1 !important;
+  }
+
+  /* Table styling rules for continuous page flow */
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    page-break-inside: auto !important;
+  }
+
+  tr {
+    page-break-inside: avoid !important;
+    page-break-after: auto !important;
+  }
+
+  thead {
+    display: table-header-group !important;
+    background-color: #f1f5f9 !important;
+  }
+
+  th, td {
+    border-bottom: 1px solid #e2e8f0 !important;
+    padding: 6px 10px !important;
+  }
+
+  th {
+    color: #475569 !important;
+    font-weight: 700 !important;
+  }
+}
